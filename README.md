@@ -1,0 +1,1 @@
+This page has been created by Richard Oven as a project for OpenClassrooms - Web Developer course. Project has been started on 23rd of February - 2021 Project has been finalized on XX of XX - 2021 Visit the live page here: https://rvnlive.github.io/richardoven_6_02232021_A/frontend/index.html
