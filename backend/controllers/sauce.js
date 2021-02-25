@@ -1,21 +1,15 @@
 const Sauce = require('../models/sauce')
 const fs = require('fs')
-const jwt = require('jsonwebtoken')
+const expressMongoSanitize = require('express-mongo-sanitize')
 
 exports.createSauce = (req, res, next) => {
   const url = req.protocol + '://' + req.get('host')
-  req.body.sauce = JSON.parse(req.body.sauce)
+  const parsedSauce = JSON.parse(req.body.sauce)
+  const sauceObject = expressMongoSanitize(parsedSauce)
+  delete sauceObject._id
   const sauce = new Sauce({
-    name: req.body.sauce.name,
-    manufacturer: req.body.sauce.manufacturer,
-    description: req.body.sauce.description,
-    mainPepper: req.body.sauce.mainPepper,
-    imageUrl: url + '/images/' + req.file.filename,
-    heat: req.body.sauce.heat,
-    likes: req.body.sauce.likes,
-    dislikes: req.body.sauce.dislikes,
-    usersLiked: req.body.sauce.usersLiked,
-    usersDisliked: req.body.sauce.usersDisliked
+    ...sauceObject,
+    imageUrl: url + '/images/' + req.file.filename
   })
   sauce.save().then(
     () => {
@@ -49,39 +43,16 @@ exports.getOneSauce = (req, res, next) => {
 }
 
 exports.modifyTheSauce = (req, res, next) => {
-  let sauce = new Sauce({ _id: req.params._id })
-  if (req.file) {
-    const url = req.protocol + '://' + req.get('host')
-    req.body.sauce = JSON.parse(req.body.sauce)
-    sauce = {
-      _id: req.params.id,
-      name: req.body.sauce.name,
-      manufacturer: req.body.sauce.manufacturer,
-      description: req.body.sauce.description,
-      mainPepper: req.body.sauce.mainPepper,
-      imageUrl: url + '/images/' + req.file.filename,
-      heat: req.body.sauce.heat,
-      likes: req.body.sauce.likes,
-      dislikes: req.body.sauce.dislikes,
-      usersLiked: req.body.sauce.usersLiked,
-      usersDisliked: req.body.sauce.usersDisliked
-    }
-  } else {
-    sauce = {
-      _id: req.params.id,
-      name: req.body.name,
-      manufacturer: req.body.manufacturer,
-      description: req.body.description,
-      mainPepper: req.body.mainPepper,
-      imageUrl: req.body.imageUrl,
-      heat: req.body.heat,
-      likes: req.body.likes,
-      dislikes: req.body.dislikes,
-      usersLiked: req.body.usersLiked,
-      usersDisliked: req.body.usersDisliked
-    }
-  }
-  Sauce.updateOne({ _id: req.params.id }, sauce).then(
+  const url = req.protocol + '://' + req.get('host')
+  const sauceObject = req.file
+    ? {
+        ...JSON.parse(req.body.sauce),
+        imageUrl: url + '/images/' + req.file.filename
+      }
+    : {
+        ...req.body
+      }
+  Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id }).then(
     () => {
       res.status(201).json({
         message: 'Sauce has been updated!'
@@ -94,6 +65,55 @@ exports.modifyTheSauce = (req, res, next) => {
       })
     }
   )
+}
+
+exports.likeDislikeOneSauce = (req, res, next) => {
+  const userId = req.body.userId
+  const like = req.body.like
+  const sauceId = req.params.id
+  Sauce.findOne({
+    _id: sauceId
+  })
+    .then(sauce => {
+      const newValues = {
+        usersLiked: sauce.usersLiked,
+        usersDisliked: sauce.usersDisliked,
+        likes: 0,
+        dislikes: 0
+      }
+      switch (like) {
+        case 1:
+          newValues.usersLiked.push(userId)
+          break
+        case -1:
+          newValues.usersDisliked.push(userId)
+          break
+        case 0:
+          if (newValues.usersLiked.includes(userId)) {
+            const index = newValues.usersLiked.indexOf(userId)
+            newValues.usersLiked.splice(index, 1)
+          } else {
+            const index = newValues.usersDisliked.indexOf(userId)
+            newValues.usersDisliked.splice(index, 1)
+          }
+          break
+      };
+
+      newValues.likes = newValues.usersLiked.length
+      newValues.dislikes = newValues.usersDisliked.length
+      Sauce.updateOne({
+        _id: sauceId
+      }, newValues)
+        .then(() => res.status(200).json({
+          message: 'Sauce has been rated!'
+        }))
+        .catch(error => res.status(400).json({
+          error
+        }))
+    })
+    .catch(error => res.status(500).json({
+      error
+    }))
 }
 
 exports.deleteTheSauce = (req, res, next) => {
