@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 .env-dev
     .env-prod
     .gitignore
     index.js
     package-lock.json
     package.json
+=======
+node_modules/
+>>>>>>> 15892a6401d221f91023f3fc279d14521f7a4867
