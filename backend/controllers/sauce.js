@@ -152,7 +152,7 @@ exports.likeDislikeOneSauce = (req, res, next) => {
           }
           break
         case 0:
-          // If a sauce liked, but want to take it back
+          // If a sauce is liked, but want to take it back
           if (sauce.usersLiked.includes(req.body.userId)) {
             Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: -1 }, $pull: { usersLiked: req.body.userId }, _id: req.params.id })
               .then(() => res.status(201).json({ message: 'Like has been cancelled! :(' }))
