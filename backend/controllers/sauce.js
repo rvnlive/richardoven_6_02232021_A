@@ -1,5 +1,6 @@
 // Lets load the Sauce model
 const Sauce = require('../models/sauce')
+
 // Lets load a FileSystem
 const fs = require('fs')
 
@@ -30,6 +31,7 @@ exports.createSauce = (req, res, next) => {
   )
 }
 
+// Lets 'Load (GET) all sauces' with this function
 exports.getAllSauces = (req, res, next) => {
   Sauce.find().then(
     (sauces) => {
@@ -44,6 +46,7 @@ exports.getAllSauces = (req, res, next) => {
   )
 }
 
+// Lets 'Load (GET) a sauce' with this function
 exports.getOneSauce = (req, res, next) => {
   Sauce.findOne({
     _id: req.params.id
@@ -60,6 +63,7 @@ exports.getOneSauce = (req, res, next) => {
   )
 }
 
+// Lets 'Modify (PUT) a sauce' with this function
 exports.modifyTheSauce = (req, res, next) => {
   const sauceObject = req.file
     ? {
@@ -99,6 +103,7 @@ exports.modifyTheSauce = (req, res, next) => {
   }
 }
 
+// Lets 'Delete (DELETE) a sauce' with this function
 exports.deleteTheSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then(sauce => {
@@ -121,12 +126,13 @@ exports.deleteTheSauce = (req, res, next) => {
     }).catch(error => res.status(500).json({ error }))
 }
 
+// Lets 'Like or Dislike (POST) a sauce' with this function
 exports.likeDislikeOneSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
     .then((sauce) => {
       switch (req.body.like) {
         case 1:
-          // If no likes
+          // To like a sauce
           if (!sauce.usersLiked.includes(req.body.userId)) {
             Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: 1 }, $push: { usersLiked: req.body.userId }, _id: req.params.id })
               .then(() => res.status(201).json({ message: 'Sauce has been liked! :)' }))
@@ -136,7 +142,7 @@ exports.likeDislikeOneSauce = (req, res, next) => {
           }
           break
         case -1:
-          // If no dislikes
+          // To dislike a sauce
           if (!sauce.usersDisliked.includes(req.body.userId)) {
             Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDisliked: req.body.userId }, _id: req.params.id })
               .then(() => res.status(201).json({ message: 'Sauce has been disliked! :(' }))
@@ -146,7 +152,7 @@ exports.likeDislikeOneSauce = (req, res, next) => {
           }
           break
         case 0:
-          // If there is a like, we can cancel this
+          // If a sauce liked, but want to take it back
           if (sauce.usersLiked.includes(req.body.userId)) {
             Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: -1 }, $pull: { usersLiked: req.body.userId }, _id: req.params.id })
               .then(() => res.status(201).json({ message: 'Like has been cancelled! :(' }))
@@ -154,7 +160,7 @@ exports.likeDislikeOneSauce = (req, res, next) => {
                 res.status(400).json({ error: error })
               })
           } else {
-            // If there is dislike, then we cancel the dislike
+            // If a sauce is disliked, but want to take it back
             Sauce.updateOne({ _id: req.params.id },
               {
                 $inc: { dislikes: -1 },

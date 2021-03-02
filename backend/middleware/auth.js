@@ -1,5 +1,7 @@
+// Secret or Private Key (Token) generator for verification purpose
 const jwt = require('jsonwebtoken')
 
+// Secret or Private Key (Token) verification middleware
 module.exports = (req, res, next) => {
   let token = req.headers.authorization
   if (!token) return res.status(401).send('Access denied / Unauthorized request')

@@ -34,6 +34,7 @@ const errorHandler = error => {
       throw error
   }
 }
+
 const server = http.createServer(app)
 
 server.on('error', errorHandler)

@@ -1,5 +1,7 @@
+// MongoDB object modeling tool
 const mongoose = require('mongoose')
 
+// Database (Sauce) model
 const sauceSchema = mongoose.Schema({
   userId: { type: String, required: true },
   name: { type: String, required: true },

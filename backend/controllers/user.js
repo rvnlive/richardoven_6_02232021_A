@@ -1,12 +1,23 @@
+// Library for password hashing
 const bcrypt = require('bcrypt')
+
+// Secret or Private Key (Token) generator for verification purpose
 const jwt = require('jsonwebtoken')
+
+// Masking Sensitive User Input (Email)
+const MaskData = require('maskdata')
+
+// User models
 const User = require('../models/user')
 
+// SignUp function
 exports.signup = (req, res, next) => {
+  const email = req.body.email
+  const maskedEmail = MaskData.maskEmail2(email)
   bcrypt.hash(req.body.password, 10).then(
     (hash) => {
       const user = new User({
-        email: req.body.email,
+        email: maskedEmail,
         password: hash
       })
       user.save().then(
@@ -32,8 +43,11 @@ exports.signup = (req, res, next) => {
   )
 }
 
+// LogIn function
 exports.login = (req, res, next) => {
-  User.findOne({ email: req.body.email }).then(
+  const email = req.body.email
+  const maskedEmail = MaskData.maskEmail2(email)
+  User.findOne({ email: maskedEmail }).then(
     (user) => {
       if (!user) {
         return res.status(401).json({
