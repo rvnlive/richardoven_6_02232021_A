@@ -18,15 +18,13 @@ Its functionality covers:
 ### SignUp ###
 - Signing up with email and password
     -- When signing up, user can only sign up '1x' (once) with the same email, making each email unique in the database
-    -- After the user submitting the email address and password, the email address is being masked with `maskdata`
-        (visible only the first 3 and the last 2 characters of the input: 123xxx@xxxxxom)
-        and also the password is being hashed with `bycrypt` and this is being saved into the database -
+    -- After the user submitting the email address and password, the password is being hashed with `bcrypt` and this is being saved into the database -
         keeping the user data safe and encrypted.
 
 ### LogIn ###
 - Logging in with the registered email and matching password
-    -- When logging in, a `jwt` secret random token is being used for a secure user-authentication, so every time the user logs in,
-        the masked email and the hashed password is being decoded and verified.
+    -- When logging in, `jwt` with a `crypto` secret token is being used for a secure user-authentication, so every time the user logs in,
+        the hashed password is being decoded, matched with the email and verified.
 
 ### User logged in ###
 - Every user has the same `privilege`: every one of them are `Users`, who can leave Feedbacks (Like or Dislike)
