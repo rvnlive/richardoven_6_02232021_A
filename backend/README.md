@@ -23,7 +23,7 @@ Its functionality covers:
 
 ### LogIn ###
 - Logging in with the registered email and matching password
-    -- When logging in, `jwt` with a `crypto` secret token is being used for a secure user-authentication, so every time the user logs in,
+    -- When logging in, `jwt` with a random secret token is being used for a secure user-authentication, so every time the user logs in,
         the hashed password is being decoded, matched with the email and verified.
 
 ### User logged in ###

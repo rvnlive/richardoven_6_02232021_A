@@ -1,5 +1,8 @@
 // Secret or Private Key (Token) generator for verification purpose
 const jwt = require('jsonwebtoken')
+// Secret Token
+// const crypto = require('crypto')
+// const secret = crypto.randomBytes(16).toString('hex')
 
 // Secret or Private Key (Token) verification middleware
 module.exports = (req, res, next) => {
